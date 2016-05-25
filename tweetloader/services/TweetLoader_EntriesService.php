@@ -233,11 +233,26 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 	// Anything we like can be updated in here
 	private function updateEntry($localEntry, $tweet)
 	{
-		// Set the other content
-		$localEntry->setContentFromPost(array(
-			// Update the Tweet Page URL in case the user's handle has changed
-			'tweetPageUrl' 		=> $this->constructTweetPageUrl($tweet),
-		));
+		// Set up an empty array for our updating content
+		$content = array();
+
+		// Get the remote Tweet page url
+		// We are checking this in case the user's handle has changed
+		$remoteTweetPageUrl = $this->constructTweetPageUrl($tweet);
+		// Get the local Tweet page url
+		$localTweetPageUrl 	= $localEntry->tweetPageUrl;
+
+		if ($remoteTweetPageUrl !== $localTweetPageUrl) {
+			$content['tweetPageUrl'] = $remoteTweetPageUrl;
+		}
+
+		// If we have no updating content, don't update the entry
+		if (!count($content)) {
+			return true;
+		}
+
+		// Set the content
+		$localEntry->setContentFromPost($content);
 
 		// Save the entry!
 		$this->saveEntry($localEntry);
@@ -301,7 +316,7 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 			$removedIds 	= 	array_diff($localData['ids'], $remoteData['ids']);
 
 			// Determine which entries need updating (all active entries which we aren't about to create)
-			$updatingIds 	=	array_slice(array_diff($remoteData['ids'], $missingIds), 0, 30);
+			$updatingIds 	=	array_diff($remoteData['ids'], $missingIds);
 
 
 			// For each missing id
