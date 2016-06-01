@@ -105,7 +105,10 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 			$tweets = array_merge($tweets, $result);
 
 			// Set the max id for the next call
-			$params['max_id'] = $tweets[count($tweets) - 1]->id;
+			if (isset($tweets[count($tweets) - 1]))
+			{
+				$params['max_id'] = $tweets[count($tweets) - 1]->id;
+			}
 		} while (count($result));
 
 		$data = array(
