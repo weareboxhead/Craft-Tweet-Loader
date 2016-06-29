@@ -11,7 +11,7 @@ class TweetLoaderPlugin extends BasePlugin
 
 	function getVersion()
 	{
-		return '0.1';
+		return '0.2';
 	}
 
 	function getDeveloper()
@@ -53,6 +53,10 @@ class TweetLoaderPlugin extends BasePlugin
 			'twitterUserId'		=>	'Twitter User Id',
 			'tweetText'			=>	'Tweet Text',
 			'tweetPageUrl'		=>	'Tweet Page URL',
+			'tweetImageUrl'		=>	'Tweet Image URL',
+			'tweetLocation'		=>  'Tweet Location String',
+			'tweetLatitude'		=>	'Tweet Location Latitude',
+			'tweetLongitude'	=>	'Tweet Location Longitude'
 		);
 
 		$tweetsEntryLayoutIds = array();
@@ -202,12 +206,13 @@ class TweetLoaderPlugin extends BasePlugin
 	protected function defineSettings()
 	{
 		return array(
-			'consumerKey'		=> array(AttributeType::String, 'default' => ''),
-			'consumerSecret'	=> array(AttributeType::String, 'default' => ''),
-			'sectionId'			=> array(AttributeType::String, 'default' => ''),
-			'entryTypeId'		=> array(AttributeType::String, 'default' => ''),
-			'categoryGroupId'	=> array(AttributeType::String, 'default' => ''),
-			'twitterUserIds'	=> array(AttributeType::String, 'default' => ''),
+			'consumerKey'					=> array(AttributeType::String, 'default' => ''),
+			'consumerSecret'				=> array(AttributeType::String, 'default' => ''),
+			'sectionId'						=> array(AttributeType::String, 'default' => ''),
+			'entryTypeId'					=> array(AttributeType::String, 'default' => ''),
+			'categoryGroupId'				=> array(AttributeType::String, 'default' => ''),
+			'twitterUserIds'				=> array(AttributeType::String, 'default' => ''),
+			'onlySaveTweetsWithCategories'	=> array(AttributeType::Bool, 'default' => '')
 		);
 	}
 

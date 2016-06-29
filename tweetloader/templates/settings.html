@@ -40,7 +40,7 @@
 
 <div class="field" id="categoryGroupId-field">
 	<div class="heading">
-		<label for="categoryGroupId">Category Group Id</label>
+		<label for="categoryGroupId">Category Group ID</label>
 	</div>
 
 	<div class="input">
@@ -57,5 +57,25 @@
 
 	<div class="input">
 		<input class="text  fullwidth" name="twitterUserIds" id="twitterUserIds" value="{{ settings.twitterUserIds }}">
+	</div>
+</div>
+
+<div class="field" id="onlySaveTweetsWithCategories-field">
+	<div class="heading">
+		<label for="onlySaveTweetsWithCategories">Only Save Tweets With Categories</label>
+
+		<div class="instructions">To save processing time and potentially hundreds/thousands of unneeded Tweet entries, turn this on when utilising specific categories/hashtags</a></div>
+	</div>
+
+	<div class="input ltr">	
+		<div class="lightswitch {% if settings.onlySaveTweetsWithCategories %}on{% else %}off{% endif %}" tabindex="0">
+			<div class="lightswitch-container">
+				<div class="label on"></div>
+				<div class="handle"></div>
+				<div class="label off"></div>
+			</div>
+			
+			<input type="hidden" name="onlySaveTweetsWithCategories" value="{{ settings.onlySaveTweetsWithCategories }}">
+		</div>
 	</div>
 </div>

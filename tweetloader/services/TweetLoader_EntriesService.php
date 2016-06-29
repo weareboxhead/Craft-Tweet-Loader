@@ -11,15 +11,16 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 	private $entryTypeId;
 	private $twitterUserIds;
 	private $connection;
+	private $settings;
 
 	function __construct()
 	{
 		// Get the wrapper for our authenticated call
 		require_once craft()->path->getPluginsPath() . 'tweetloader/wrapper/autoload.php';
 
-		$settings = craft()->plugins->getPlugin('tweetLoader')->getSettings();
+		$this->settings = craft()->plugins->getPlugin('tweetLoader')->getSettings();
 
-		$consumerKey = $settings->consumerKey;
+		$consumerKey = $this->settings->consumerKey;
 
 		if (!$consumerKey)
 		{
@@ -28,7 +29,7 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 			return;
 		}
 
-		$consumerSecret = $settings->consumerSecret;
+		$consumerSecret = $this->settings->consumerSecret;
 
 		if (!$consumerSecret)
 		{
@@ -37,7 +38,7 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 			return;
 		}
 
-		$this->sectionId = $settings->sectionId;
+		$this->sectionId = $this->settings->sectionId;
 
 		if (!$this->sectionId)
 		{
@@ -46,7 +47,7 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 			return;
 		}
 
-		$this->entryTypeId = $settings->entryTypeId;
+		$this->entryTypeId = $this->settings->entryTypeId;
 
 		if (!$this->entryTypeId)
 		{
@@ -55,7 +56,7 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 			return;
 		}
 
-		$this->twitterUserIds 	= $settings->twitterUserIds;
+		$this->twitterUserIds 	= $this->settings->twitterUserIds;
 
 		$this->connection = new TwitterOAuth($consumerKey, $consumerSecret);
 	}
@@ -193,6 +194,36 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 			'tweetCategories'	=>	craft()->tweetLoader_categories->parseCategories($tweet->entities->hashtags),
 		);
 
+		// Do we have any geo coordaintes we can save?
+		if (isset($tweet->coordinates->coordinates))
+		{
+			$content['tweetLatitude'] = $tweet->coordinates->coordinates[0];
+			$content['tweetLongitude'] = $tweet->coordinates->coordinates[1];
+		} 
+		else if (isset($tweet->place->bounding_box))
+		{
+			$coords = $tweet->place->bounding_box->coordinates[0][0];
+
+			$content['tweetLocation'] = $tweet->place->name;
+			$content['tweetLatitude'] = trim($coords[1]);
+			$content['tweetLongitude'] = trim($coords[0]);
+		}
+
+		// Do we have any media items we can save?
+		if (isset($tweet->entities->media[0]))
+		{
+			// We only want to save the URL if it is a photo
+			if ($tweet->entities->media[0]->type === 'photo')
+			{
+				$content['tweetImageUrl'] = $tweet->entities->media[0]->media_url_https;
+			}
+		}
+
+// echo '<pre>';
+// print_r($tweet);
+// echo '</pre>';
+// exit;
+
 		return $content;
 	}
 
@@ -209,6 +240,19 @@ class TweetLoader_EntriesService extends BaseApplicationComponent
 
 	private function createEntry($tweet, $userId)
 	{
+		// Does our plugin settings specify to ONLY save if a category (hashtag) exists?
+		if ($this->settings->onlySaveTweetsWithCategories)
+		{
+			// Does this tweet have any of our categories?
+			$matchingCategoryHastags = craft()->tweetLoader_categories->parseCategories($tweet->entities->hashtags);
+
+			// If $matchinCategoryHastags is an empty array we need to get out of here
+			if (empty($matchingCategoryHastags))
+			{
+				return;
+			}
+		}
+
 		// Format the tweet text
 		$text = $tweet->text;
 
