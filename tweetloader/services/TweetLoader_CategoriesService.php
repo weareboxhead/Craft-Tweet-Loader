@@ -37,12 +37,10 @@ class TweetLoader_CategoriesService extends BaseApplicationComponent
 			// We just need the text
 			$tag = $tag->text;
 
-			// If it matches one of the handles, add the id to the array and continue
-			foreach ($this->categories as $slug => $id) {
-				if ($tag === $slug)
-				{
-					$categoryIds[] = $id;
-				}
+			// If it matches one of the handles
+			if (isset($this->categories[$tag])) {
+				// Add the id to the array
+				$categoryIds[] = $this->categories[$tag];
 			}
 		}
 
